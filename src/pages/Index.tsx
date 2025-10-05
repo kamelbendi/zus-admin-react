@@ -1,5 +1,6 @@
 import { StatCard } from "@/components/StatCard";
 import { SimulationTable, SimulationData } from "@/components/SimulationTable";
+import ZusLogo from "@/components/ZusLogo";
 import { TrendingUp, Banknote, Users } from "lucide-react";
 import { toast } from "sonner";
 import * as XLSX from 'xlsx';
@@ -115,7 +116,11 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <header className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Panel Administracyjny</h1>
+          <div className="flex items-center gap-4 mb-4">
+            <ZusLogo width={120} height={27} className="flex-shrink-0" />
+            <div className="h-8 w-px bg-border"></div>
+            <h1 className="text-3xl font-bold">Panel Administracyjny</h1>
+          </div>
           <p className="text-muted-foreground">
             Zarządzaj i analizuj statystyki symulacji emerytalnych użytkowników. Przeglądaj wszystkie symulacje,
             filtruj według daty i regionu, oraz eksportuj szczegółowe raporty.

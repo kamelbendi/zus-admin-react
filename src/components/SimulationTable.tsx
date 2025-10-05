@@ -54,7 +54,7 @@ export const SimulationTable = ({ data, onExport }: SimulationTableProps) => {
         <h2 className="text-xl font-semibold">Historia symulacji</h2>
         <Button variant="outline" onClick={onExport} className="gap-2">
           <Download className="h-4 w-4" />
-          Eksportuj raport
+          Eksportuj Excel
         </Button>
       </div>
       <div className="rounded-md border overflow-x-auto">
