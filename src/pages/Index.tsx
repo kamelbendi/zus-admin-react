@@ -1,9 +1,8 @@
-import { useState } from "react";
-import { SimulationFilters } from "@/components/SimulationFilters";
 import { StatCard } from "@/components/StatCard";
 import { SimulationTable, SimulationData } from "@/components/SimulationTable";
 import { TrendingUp, Banknote, Users } from "lucide-react";
 import { toast } from "sonner";
+import * as XLSX from 'xlsx';
 
 // Mock data for demonstration
 const mockData: SimulationData[] = [
@@ -74,31 +73,39 @@ const mockData: SimulationData[] = [
 ];
 
 const Index = () => {
-  const [startDate, setStartDate] = useState("2025-04-10");
-  const [endDate, setEndDate] = useState("2025-04-10");
-  const [postalCode, setPostalCode] = useState("");
-  const [filteredData, setFilteredData] = useState(mockData);
-
-  const handleApplyFilters = () => {
-    // In a real app, this would filter the data based on the selected criteria
-    toast.success("Filtry zostały zastosowane");
-  };
-
-  const handleResetFilters = () => {
-    setStartDate("2025-04-10");
-    setEndDate("2025-04-10");
-    setPostalCode("");
-    setFilteredData(mockData);
-    toast.info("Filtry zostały zresetowane");
-  };
-
   const handleExport = () => {
-    toast.success("Raport został wyeksportowany");
+    // Prepare data for Excel export
+    const exportData = mockData.map(item => ({
+      'ID': item.id,
+      'Data symulacji': new Date(item.dateTime).toLocaleString('pl-PL'),
+      'Wiek': item.age,
+      'Płeć': item.sex,
+      'Wynagrodzenie': item.salary,
+      'Kod pocztowy': item.postalCode || '—',
+      'Pożądana emerytura': item.expectedPension,
+      'Zgromadzone środki': item.accumulatedFunds,
+      'L4 wliczone': item.sickLeave ? 'Tak' : 'Nie',
+      'Prognozowana emerytura': item.actualPension,
+      'Realna emerytura': item.realPension,
+    }));
+
+    // Create worksheet
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    
+    // Create workbook
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Symulacje');
+    
+    // Generate file
+    const fileName = `symulacje_emerytalne_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+    
+    toast.success("Raport został wyeksportowany do pliku Excel");
   };
 
-  const totalSimulations = filteredData.length;
-  const averagePension = filteredData.reduce((sum, item) => sum + item.realPension, 0) / filteredData.length;
-  const thisMonthSimulations = filteredData.filter(item => {
+  const totalSimulations = mockData.length;
+  const averagePension = mockData.reduce((sum, item) => sum + item.realPension, 0) / mockData.length;
+  const thisMonthSimulations = mockData.filter(item => {
     const itemDate = new Date(item.dateTime);
     const now = new Date();
     return itemDate.getMonth() === now.getMonth() && itemDate.getFullYear() === now.getFullYear();
@@ -116,17 +123,6 @@ const Index = () => {
         </header>
 
         <div className="space-y-6">
-          <SimulationFilters
-            startDate={startDate}
-            endDate={endDate}
-            postalCode={postalCode}
-            onStartDateChange={setStartDate}
-            onEndDateChange={setEndDate}
-            onPostalCodeChange={setPostalCode}
-            onApplyFilters={handleApplyFilters}
-            onResetFilters={handleResetFilters}
-          />
-
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <StatCard
               title="Wszystkie symulacje"
@@ -150,7 +146,7 @@ const Index = () => {
             />
           </div>
 
-          <SimulationTable data={filteredData} onExport={handleExport} />
+          <SimulationTable data={mockData} onExport={handleExport} />
         </div>
       </div>
     </div>
